@@ -1,0 +1,109 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rekap_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-rekap_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rekap_pass}
+      POSTGRES_DB: ${DB_NAME:-rekap_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-rekap_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rekap_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    container_name: rekap_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-rekap_user}:${DB_PASSWORD:-rekap_pass}@postgres:5432/${DB_NAME:-rekap_db}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npm run dev
+
+  worker:
+    build:
+      context: ./backend
+      target: development
+    container_name: rekap_worker
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-rekap_user}:${DB_PASSWORD:-rekap_pass}@postgres:5432/${DB_NAME:-rekap_db}
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npm run worker
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    container_name: rekap_frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      # Dipakai Server Components (jalan di dalam container) - alamat via nama service Docker.
+      API_URL: http://backend:3000
+      # Dipakai Client Components di browser (di luar jaringan Docker) - alamat via host.
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    depends_on:
+      - backend
+    command: npm run dev
+
+  adminer:
+    image: adminer
+    container_name: rekap_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  redis_data:

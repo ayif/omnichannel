@@ -1,0 +1,74 @@
+import { redirect } from "next/navigation";
+import { getToken } from "./session";
+import { Channel, ChannelAccount, Product, SyncLog, Transaction } from "./types";
+
+/**
+ * Dipakai HANYA dari Server Component. `API_URL` (tanpa prefix NEXT_PUBLIC_)
+ * cuma tersedia di server - di dalam Docker ini menunjuk ke nama service
+ * `backend`, sedangkan NEXT_PUBLIC_API_URL (dipakai Client Component lewat
+ * browser) menunjuk ke host yang sudah di-publish.
+ */
+const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+
+async function apiFetch<T>(path: string): Promise<T> {
+  const token = await getToken();
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+
+  if (res.status === 401) {
+    redirect("/login");
+  }
+  if (!res.ok) {
+    throw new Error(`Gagal memuat ${path}: ${res.status} ${res.statusText}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export interface DailyChannelRevenue {
+  date: string;
+  tokopedia: number;
+  shopee: number;
+  website: number;
+  tiktokshop: number;
+}
+
+export interface DashboardStats {
+  totalPenjualan: number;
+  totalTransaksi: number;
+  stokMenipis: number;
+  channelAktif: number;
+  channelBermasalah: number;
+}
+
+export function getProducts(): Promise<Product[]> {
+  return apiFetch<Product[]>("/products");
+}
+
+export function getTransactions(params?: { channel?: Channel; limit?: number }): Promise<Transaction[]> {
+  const qs = new URLSearchParams();
+  if (params?.channel) qs.set("channel", params.channel);
+  if (params?.limit) qs.set("limit", String(params.limit));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return apiFetch<Transaction[]>(`/transactions${suffix}`);
+}
+
+export function getSyncLogs(): Promise<SyncLog[]> {
+  return apiFetch<SyncLog[]>("/sync-logs");
+}
+
+export function getDashboardStats(): Promise<DashboardStats> {
+  return apiFetch<DashboardStats>("/dashboard/stats");
+}
+
+export function getSalesTrend(): Promise<DailyChannelRevenue[]> {
+  return apiFetch<DailyChannelRevenue[]>("/dashboard/sales-trend");
+}
+
+export function getChannelTotals(): Promise<{ channel: Channel; total: number }[]> {
+  return apiFetch<{ channel: Channel; total: number }[]>("/dashboard/channel-totals");
+}
+
+export function getChannelAccounts(): Promise<ChannelAccount[]> {
+  return apiFetch<ChannelAccount[]>("/channel-accounts");
+}
