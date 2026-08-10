@@ -1,7 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
+  AuditLog,
   ChannelAccount,
+  Notification,
   Product,
   ProductChannelMapping,
   Stock,
@@ -24,6 +26,8 @@ export function buildTypeOrmOptions(config: ConfigService): TypeOrmModuleOptions
       Transaction,
       User,
       ChannelAccount,
+      AuditLog,
+      Notification,
     ],
     synchronize: config.get<string>('NODE_ENV') !== 'production',
     autoLoadEntities: true,

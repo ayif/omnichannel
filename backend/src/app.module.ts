@@ -6,9 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { buildTypeOrmOptions } from './database/typeorm.config';
+import { AccountingModule } from './modules/accounting/accounting.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChannelsModule } from './modules/channels/channels.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
 import { StockModule } from './modules/stock/stock.module';
 import { SyncModule } from './modules/sync/sync.module';
@@ -36,6 +40,10 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     ProductsModule,
     TransactionsModule,
     DashboardModule,
+    AccountingModule,
+    AuditLogModule,
+    NotificationsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService, SyncScheduler],

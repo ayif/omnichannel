@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
+  AuditLog,
   ChannelAccount,
+  Notification,
   Product,
   ProductChannelMapping,
   Stock,
@@ -20,6 +22,8 @@ const entities = [
   Transaction,
   User,
   ChannelAccount,
+  AuditLog,
+  Notification,
 ];
 
 @Module({

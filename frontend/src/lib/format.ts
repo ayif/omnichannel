@@ -25,6 +25,12 @@ export function formatChartDay(isoDate: string): string {
   );
 }
 
+export function formatMonth(yyyyMm: string): string {
+  return new Intl.DateTimeFormat("id-ID", { month: "short", year: "numeric" }).format(
+    new Date(`${yyyyMm}-01T00:00:00Z`)
+  );
+}
+
 export function formatDate(value: string | Date): string {
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",

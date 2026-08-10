@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bullmq';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Channel } from '../../common/channel.enum';
+import { NotificationSeverity, NotificationType } from '../../database/entities/notification.entity';
 import { ProductChannelMapping } from '../../database/entities/product-channel-mapping.entity';
 import { StockMovementSource } from '../../database/entities/stock-movement.entity';
 import { SyncLog, SyncStatus } from '../../database/entities/sync-log.entity';
@@ -12,6 +13,7 @@ import { ChannelAccountsService } from '../channels/channel-accounts.service';
 import { ShopeeService } from '../channels/shopee/shopee.service';
 import { TikTokShopService } from '../channels/tiktokshop/tiktokshop.service';
 import { TokopediaService } from '../channels/tokopedia/tokopedia.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { StockService } from '../stock/stock.service';
 import { SYNC_QUEUE, SyncJobName } from './sync.constants';
 import { SyncService } from './sync.service';
@@ -29,6 +31,7 @@ export class SyncProcessor extends WorkerHost {
     private readonly stockService: StockService,
     private readonly syncService: SyncService,
     private readonly channelAccountsService: ChannelAccountsService,
+    private readonly notificationsService: NotificationsService,
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
     @InjectRepository(ProductChannelMapping)
@@ -118,11 +121,21 @@ export class SyncProcessor extends WorkerHost {
         waktuSelesai: new Date(),
         jumlahDataDitarik: jumlahDitarik,
       });
+      await this.notificationsService.resolve(NotificationType.SYNC_FAILED, channel);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       await this.syncLogRepo.update(log.id, {
         status: SyncStatus.FAILED,
         waktuSelesai: new Date(),
-        errorMessage: error instanceof Error ? error.message : String(error),
+        errorMessage,
+      });
+      await this.notificationsService.notifyIfAbsent({
+        type: NotificationType.SYNC_FAILED,
+        severity: NotificationSeverity.CRITICAL,
+        entityType: 'channel',
+        entityId: channel,
+        title: `Sync ${channel} gagal`,
+        message: errorMessage,
       });
       throw error;
     }

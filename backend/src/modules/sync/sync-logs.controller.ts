@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Channel } from '../../common/channel.enum';
 import { Role } from '../../common/role.enum';
+import { AuditAction } from '../../database/entities/audit-log.entity';
 import { SyncLog, SyncStatus } from '../../database/entities/sync-log.entity';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { AuthenticatedUser } from '../auth/jwt.strategy';
 import { Roles } from '../auth/roles.decorator';
 import { SyncService } from './sync.service';
 
@@ -23,6 +27,7 @@ export class SyncLogsController {
   constructor(
     @InjectRepository(SyncLog) private readonly syncLogRepo: Repository<SyncLog>,
     private readonly syncService: SyncService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   @Get()
@@ -59,8 +64,19 @@ export class SyncLogsController {
   }
 
   @Post(':channel/trigger')
-  async trigger(@Param('channel', new ParseEnumPipe(Channel)) channel: Channel) {
+  async trigger(
+    @Param('channel', new ParseEnumPipe(Channel)) channel: Channel,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     await this.syncService.enqueuePullOrders(channel);
+    await this.auditLogService.record({
+      action: AuditAction.SYNC_TRIGGER,
+      user,
+      entityType: 'sync',
+      entityId: channel,
+      description: `${user.nama} memicu sync manual channel ${channel}`,
+      metadata: { channel },
+    });
     return { queued: true, channel };
   }
 }

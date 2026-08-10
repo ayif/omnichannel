@@ -103,3 +103,121 @@ export const TRANSACTION_STATUS_LABEL: Record<TransactionStatus, string> = {
   [TransactionStatus.CANCELLED]: "Dibatalkan",
   [TransactionStatus.REFUND]: "Refund",
 };
+
+export interface LabaRugiSummary {
+  penjualanBarang: number;
+  pendapatanOngkir: number;
+  totalPendapatan: number;
+  hpp: number;
+  labaKotor: number;
+  marginPersen: number;
+  jumlahTransaksi: number;
+}
+
+export interface LabaRugiChannel {
+  channel: Channel;
+  penjualanBarang: number;
+  pendapatanOngkir: number;
+  totalPendapatan: number;
+  hpp: number;
+  labaKotor: number;
+  marginPersen: number;
+  jumlahTransaksi: number;
+}
+
+export interface LabaRugiProduk {
+  productId: string;
+  namaProduk: string;
+  qty: number;
+  penjualanBarang: number;
+  hpp: number;
+  labaKotor: number;
+}
+
+export interface LabaRugiTrend {
+  periode: string;
+  totalPendapatan: number;
+  hpp: number;
+  labaKotor: number;
+}
+
+export interface LabaRugiResponse {
+  summary: LabaRugiSummary;
+  perChannel: LabaRugiChannel[];
+  perProduk: LabaRugiProduk[];
+  trend: LabaRugiTrend[];
+}
+
+export enum AuditAction {
+  LOGIN_SUCCESS = "login_success",
+  LOGIN_FAILED = "login_failed",
+  CHANNEL_CONNECT = "channel_connect",
+  CHANNEL_DISCONNECT = "channel_disconnect",
+  SYNC_TRIGGER = "sync_trigger",
+}
+
+export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
+  [AuditAction.LOGIN_SUCCESS]: "Login Berhasil",
+  [AuditAction.LOGIN_FAILED]: "Login Gagal",
+  [AuditAction.CHANNEL_CONNECT]: "Toko Terhubung",
+  [AuditAction.CHANNEL_DISCONNECT]: "Toko Diputuskan",
+  [AuditAction.SYNC_TRIGGER]: "Sync Manual",
+};
+
+export enum NotificationType {
+  STOCK_LOW = "stock_low",
+  SYNC_FAILED = "sync_failed",
+}
+
+export enum NotificationSeverity {
+  WARNING = "warning",
+  CRITICAL = "critical",
+}
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  severity: NotificationSeverity;
+  entityType: string;
+  entityId: string;
+  title: string;
+  message: string;
+  metadata: Record<string, unknown> | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ChannelQty {
+  channel: Channel;
+  qty: number;
+}
+
+export interface ProdukTerlaris {
+  productId: string;
+  namaProduk: string;
+  qtyTerjual: number;
+  omzet: number;
+  perChannel: ChannelQty[];
+}
+
+export interface StokTercepatHabis {
+  productId: string;
+  namaProduk: string;
+  stokSaatIni: number;
+  avgPerHari: number;
+  perkiraanHariTersisa: number | null;
+  perChannel: ChannelQty[];
+}
+
+export interface AuditLog {
+  id: string;
+  action: AuditAction;
+  entityType: string | null;
+  entityId: string | null;
+  userNama: string | null;
+  userEmail: string | null;
+  description: string;
+  metadata: Record<string, unknown> | null;
+  ipAddress: string | null;
+  createdAt: string;
+}

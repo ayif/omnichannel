@@ -1,6 +1,17 @@
 import { redirect } from "next/navigation";
 import { getToken } from "./session";
-import { Channel, ChannelAccount, Product, SyncLog, Transaction } from "./types";
+import {
+  AuditAction,
+  AuditLog,
+  Channel,
+  ChannelAccount,
+  LabaRugiResponse,
+  Product,
+  ProdukTerlaris,
+  StokTercepatHabis,
+  SyncLog,
+  Transaction,
+} from "./types";
 
 /**
  * Dipakai HANYA dari Server Component. `API_URL` (tanpa prefix NEXT_PUBLIC_)
@@ -71,4 +82,50 @@ export function getChannelTotals(): Promise<{ channel: Channel; total: number }[
 
 export function getChannelAccounts(): Promise<ChannelAccount[]> {
   return apiFetch<ChannelAccount[]>("/channel-accounts");
+}
+
+export function getLabaRugi(params?: {
+  channel?: Channel;
+  startDate?: string;
+  endDate?: string;
+}): Promise<LabaRugiResponse> {
+  const qs = new URLSearchParams();
+  if (params?.channel) qs.set("channel", params.channel);
+  if (params?.startDate) qs.set("startDate", params.startDate);
+  if (params?.endDate) qs.set("endDate", params.endDate);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return apiFetch<LabaRugiResponse>(`/accounting/laba-rugi${suffix}`);
+}
+
+export function getAuditLogs(params?: {
+  action?: AuditAction;
+  startDate?: string;
+  endDate?: string;
+}): Promise<AuditLog[]> {
+  const qs = new URLSearchParams();
+  if (params?.action) qs.set("action", params.action);
+  if (params?.startDate) qs.set("startDate", params.startDate);
+  if (params?.endDate) qs.set("endDate", params.endDate);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return apiFetch<AuditLog[]>(`/audit-logs${suffix}`);
+}
+
+export function getProdukTerlaris(params?: {
+  channel?: Channel;
+  startDate?: string;
+  endDate?: string;
+}): Promise<ProdukTerlaris[]> {
+  const qs = new URLSearchParams();
+  if (params?.channel) qs.set("channel", params.channel);
+  if (params?.startDate) qs.set("startDate", params.startDate);
+  if (params?.endDate) qs.set("endDate", params.endDate);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return apiFetch<ProdukTerlaris[]>(`/analytics/produk-terlaris${suffix}`);
+}
+
+export function getStokTercepatHabis(params?: { lookbackDays?: number }): Promise<StokTercepatHabis[]> {
+  const qs = new URLSearchParams();
+  if (params?.lookbackDays) qs.set("lookbackDays", String(params.lookbackDays));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return apiFetch<StokTercepatHabis[]>(`/analytics/stok-tercepat-habis${suffix}`);
 }

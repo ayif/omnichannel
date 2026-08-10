@@ -85,6 +85,10 @@ export class ChannelAccountsService {
     }));
   }
 
+  async findOne(id: string): Promise<ChannelAccount | null> {
+    return this.accountRepo.findOne({ where: { id } });
+  }
+
   async findActiveByChannel(channel: Channel): Promise<ChannelAccount[]> {
     return this.accountRepo.find({
       where: { channel, status: ChannelAccountStatus.CONNECTED },

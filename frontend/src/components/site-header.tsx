@@ -1,21 +1,25 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell } from "lucide-react";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
+import { CommandPalette } from "@/components/command-palette";
+import type { SessionUser } from "@/lib/session";
 
 const PAGE_TITLE: Record<string, string> = {
   "/": "Dashboard",
   "/produk": "Produk & Stok",
   "/transaksi": "Transaksi",
+  "/akuntansi": "Akuntansi",
+  "/analisis-produk": "Analisis Produk",
   "/sinkronisasi": "Sinkronisasi Channel",
+  "/log-aktivitas": "Log Aktivitas",
 };
 
-export function SiteHeader() {
+export function SiteHeader({ user }: { user: SessionUser }) {
   const pathname = usePathname();
   const title = PAGE_TITLE[pathname] ?? "Dashboard";
 
@@ -26,10 +30,8 @@ export function SiteHeader() {
       <h1 className="font-heading text-sm font-semibold">{title}</h1>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button variant="ghost" size="icon" aria-label="Notifikasi" className="relative">
-          <Bell />
-          <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-status-critical" />
-        </Button>
+        <CommandPalette user={user} />
+        <NotificationBell />
         <ThemeToggle />
       </div>
     </header>

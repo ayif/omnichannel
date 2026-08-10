@@ -24,3 +24,6 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Scratch scripts (ad-hoc test scripts run via ts-node during development)
+backend/scripts-tmp/

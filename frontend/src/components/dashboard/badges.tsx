@@ -2,15 +2,21 @@ import {
   CheckCircle2,
   Clock,
   CreditCard,
+  Link2,
   Loader2,
+  LogIn,
+  RefreshCw,
   RotateCcw,
   Truck,
+  Unlink,
   XCircle,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
+  AUDIT_ACTION_LABEL,
+  AuditAction,
   CHANNEL_LABEL,
   Channel,
   SyncStatus,
@@ -75,6 +81,24 @@ export function SyncStatusBadge({ status }: { status: SyncStatus }) {
     <Badge className={cn("gap-1 border-transparent font-normal", className)}>
       <Icon className={cn(spin && "animate-spin")} />
       {label}
+    </Badge>
+  );
+}
+
+const AUDIT_ACTION_STYLE: Record<AuditAction, { icon: React.ElementType; className: string }> = {
+  [AuditAction.LOGIN_SUCCESS]: { icon: LogIn, className: "bg-status-good/15 text-status-good" },
+  [AuditAction.LOGIN_FAILED]: { icon: XCircle, className: "bg-status-critical/15 text-status-critical" },
+  [AuditAction.CHANNEL_CONNECT]: { icon: Link2, className: "bg-accent text-accent-foreground" },
+  [AuditAction.CHANNEL_DISCONNECT]: { icon: Unlink, className: "bg-status-warning/15 text-status-warning" },
+  [AuditAction.SYNC_TRIGGER]: { icon: RefreshCw, className: "bg-accent text-accent-foreground" },
+};
+
+export function AuditActionBadge({ action }: { action: AuditAction }) {
+  const { icon: Icon, className } = AUDIT_ACTION_STYLE[action];
+  return (
+    <Badge className={cn("gap-1 border-transparent font-normal", className)}>
+      <Icon />
+      {AUDIT_ACTION_LABEL[action]}
     </Badge>
   );
 }

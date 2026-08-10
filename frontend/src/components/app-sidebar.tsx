@@ -4,10 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
-  Package,
-  Receipt,
-  RefreshCw,
   Store,
   ChevronsUpDown,
   LogOut,
@@ -35,15 +31,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ROLE_LABEL, Role } from "@/lib/types";
+import { NAV_ITEMS } from "@/lib/nav-items";
+import { ROLE_LABEL } from "@/lib/types";
 import type { SessionUser } from "@/lib/session";
-
-const NAV_ITEMS = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: [Role.ADMIN, Role.STAFF] },
-  { title: "Produk & Stok", url: "/produk", icon: Package, roles: [Role.ADMIN, Role.STAFF, Role.GUDANG] },
-  { title: "Transaksi", url: "/transaksi", icon: Receipt, roles: [Role.ADMIN, Role.STAFF] },
-  { title: "Sinkronisasi", url: "/sinkronisasi", icon: RefreshCw, roles: [Role.ADMIN, Role.STAFF] },
-];
 
 function initials(nama: string) {
   return nama

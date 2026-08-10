@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { buildTypeOrmOptions } from './database/typeorm.config';
 import { DatabaseModule } from './database/database.module';
 import { ChannelsModule } from './modules/channels/channels.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { StockModule } from './modules/stock/stock.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { SyncProcessor } from './modules/sync/sync.processor';
@@ -26,6 +27,7 @@ import { SyncProcessor } from './modules/sync/sync.processor';
     ChannelsModule,
     StockModule,
     SyncModule,
+    NotificationsModule,
   ],
   providers: [SyncProcessor],
 })

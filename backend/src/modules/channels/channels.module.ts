@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database/database.module';
+import { AuditLogModule } from '../audit-log/audit-log.module';
 import { ChannelAccountsController } from './channel-accounts.controller';
 import { ChannelAccountsService } from './channel-accounts.service';
 import { ShopeeOAuthProvider } from './oauth/shopee-oauth.provider';
@@ -10,7 +11,7 @@ import { ShopeeService } from './shopee/shopee.service';
 import { TikTokShopService } from './tiktokshop/tiktokshop.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuditLogModule],
   controllers: [ChannelAccountsController],
   providers: [
     TokopediaService,
