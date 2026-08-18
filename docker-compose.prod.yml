@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rekap_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-rekap_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rekap_pass}
+      POSTGRES_DB: ${DB_NAME:-rekap_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-rekap_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rekap_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: production
+    container_name: rekap_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER:-rekap_user}:${DB_PASSWORD:-rekap_pass}@postgres:5432/${DB_NAME:-rekap_db}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./backend
+      target: production
+    container_name: rekap_worker
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER:-rekap_user}:${DB_PASSWORD:-rekap_pass}@postgres:5432/${DB_NAME:-rekap_db}
+      REDIS_URL: redis://redis:6379
+    command: npm run worker:prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+    container_name: rekap_frontend
+    restart: unless-stopped
+    environment:
+      # Dipakai Server Component & API route Next.js (jalan di server, di dalam
+      # jaringan Docker) untuk manggil backend - browser tidak pernah panggil
+      # backend langsung, semua lewat proxy /api/* punya Next.js sendiri.
+      API_URL: http://backend:3000
+    depends_on:
+      - backend
+
+  # Reverse proxy + HTTPS otomatis (Let's Encrypt) di depan frontend.
+  # Backend & worker sengaja TIDAK dipublish ke internet - browser cuma
+  # pernah bicara ke frontend, yang lalu proxy ke backend lewat jaringan
+  # Docker internal (lihat catatan API_URL di atas).
+  caddy:
+    image: caddy:2-alpine
+    container_name: rekap_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:
