@@ -9,6 +9,9 @@ import {
   RotateCcw,
   Truck,
   Unlink,
+  UserMinus,
+  UserPen,
+  UserPlus,
   XCircle,
 } from "lucide-react";
 
@@ -91,6 +94,9 @@ const AUDIT_ACTION_STYLE: Record<AuditAction, { icon: React.ElementType; classNa
   [AuditAction.CHANNEL_CONNECT]: { icon: Link2, className: "bg-accent text-accent-foreground" },
   [AuditAction.CHANNEL_DISCONNECT]: { icon: Unlink, className: "bg-status-warning/15 text-status-warning" },
   [AuditAction.SYNC_TRIGGER]: { icon: RefreshCw, className: "bg-accent text-accent-foreground" },
+  [AuditAction.USER_CREATE]: { icon: UserPlus, className: "bg-status-good/15 text-status-good" },
+  [AuditAction.USER_UPDATE]: { icon: UserPen, className: "bg-accent text-accent-foreground" },
+  [AuditAction.USER_DELETE]: { icon: UserMinus, className: "bg-status-critical/15 text-status-critical" },
 };
 
 export function AuditActionBadge({ action }: { action: AuditAction }) {

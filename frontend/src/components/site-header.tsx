@@ -17,6 +17,7 @@ const PAGE_TITLE: Record<string, string> = {
   "/analisis-produk": "Analisis Produk",
   "/sinkronisasi": "Sinkronisasi Channel",
   "/log-aktivitas": "Log Aktivitas",
+  "/pengaturan": "Pengaturan",
 };
 
 export function SiteHeader({ user }: { user: SessionUser }) {

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { BarChart3, RefreshCw, ShieldCheck, Store } from "lucide-react";
 
@@ -31,6 +32,22 @@ export default async function LoginPage() {
   return (
     <div className="grid min-h-svh flex-1 lg:grid-cols-2">
       <div className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 text-primary-foreground lg:flex">
+        <div className="pointer-events-none absolute -right-16 -bottom-16 aspect-square w-[62%]">
+          <Image
+            src="/6934766.jpg"
+            alt=""
+            fill
+            priority
+            sizes="40vw"
+            className="object-contain mix-blend-multiply"
+            style={{
+              maskImage:
+                "linear-gradient(135deg, transparent 0%, black 30%)",
+              WebkitMaskImage:
+                "linear-gradient(135deg, transparent 0%, black 30%)",
+            }}
+          />
+        </div>
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{

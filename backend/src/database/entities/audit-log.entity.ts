@@ -6,6 +6,9 @@ export enum AuditAction {
   CHANNEL_CONNECT = 'channel_connect',
   CHANNEL_DISCONNECT = 'channel_disconnect',
   SYNC_TRIGGER = 'sync_trigger',
+  USER_CREATE = 'user_create',
+  USER_UPDATE = 'user_update',
+  USER_DELETE = 'user_delete',
 }
 
 @Entity('audit_logs')

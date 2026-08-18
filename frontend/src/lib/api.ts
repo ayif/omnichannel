@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { getToken } from "./session";
 import {
+  AppUser,
   AuditAction,
   AuditLog,
+  BusinessSettings,
   Channel,
   ChannelAccount,
   LabaRugiResponse,
@@ -82,6 +84,14 @@ export function getChannelTotals(): Promise<{ channel: Channel; total: number }[
 
 export function getChannelAccounts(): Promise<ChannelAccount[]> {
   return apiFetch<ChannelAccount[]>("/channel-accounts");
+}
+
+export function getBusinessSettings(): Promise<BusinessSettings> {
+  return apiFetch<BusinessSettings>("/settings/business");
+}
+
+export function getUsers(): Promise<AppUser[]> {
+  return apiFetch<AppUser[]>("/users");
 }
 
 export function getLabaRugi(params?: {

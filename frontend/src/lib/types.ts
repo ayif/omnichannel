@@ -154,6 +154,9 @@ export enum AuditAction {
   CHANNEL_CONNECT = "channel_connect",
   CHANNEL_DISCONNECT = "channel_disconnect",
   SYNC_TRIGGER = "sync_trigger",
+  USER_CREATE = "user_create",
+  USER_UPDATE = "user_update",
+  USER_DELETE = "user_delete",
 }
 
 export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
@@ -162,6 +165,9 @@ export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
   [AuditAction.CHANNEL_CONNECT]: "Toko Terhubung",
   [AuditAction.CHANNEL_DISCONNECT]: "Toko Diputuskan",
   [AuditAction.SYNC_TRIGGER]: "Sync Manual",
+  [AuditAction.USER_CREATE]: "User Ditambahkan",
+  [AuditAction.USER_UPDATE]: "User Diubah",
+  [AuditAction.USER_DELETE]: "User Dihapus",
 };
 
 export enum NotificationType {
@@ -207,6 +213,23 @@ export interface StokTercepatHabis {
   avgPerHari: number;
   perkiraanHariTersisa: number | null;
   perChannel: ChannelQty[];
+}
+
+export interface BusinessSettings {
+  id: string;
+  namaBisnis: string;
+  alamat: string | null;
+  telepon: string | null;
+  email: string | null;
+  updatedAt: string;
+}
+
+export interface AppUser {
+  id: string;
+  email: string;
+  nama: string;
+  role: Role;
+  createdAt: string;
 }
 
 export interface AuditLog {

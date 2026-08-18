@@ -129,7 +129,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                 <DropdownMenuItem disabled>
                   <User /> {ROLE_LABEL[user.role]}
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/pengaturan" />}>
                   <Settings /> Pengaturan
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

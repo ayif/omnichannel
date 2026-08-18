@@ -14,10 +14,12 @@ import { ChannelsModule } from './modules/channels/channels.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { StockModule } from './modules/stock/stock.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { SyncScheduler } from './modules/sync/sync.scheduler';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     AuditLogModule,
     NotificationsModule,
     AnalyticsModule,
+    UsersModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService, SyncScheduler],

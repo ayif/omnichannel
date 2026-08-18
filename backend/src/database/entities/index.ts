@@ -1,4 +1,5 @@
 export * from './audit-log.entity';
+export * from './business-settings.entity';
 export * from './notification.entity';
 export * from './product.entity';
 export * from './product-channel-mapping.entity';
