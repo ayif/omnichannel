@@ -20,7 +20,7 @@ rekap-marketplace/
 
 File yang sudah dibuat di outputs (pindahkan sesuai nama & lokasi berikut):
 
-- `docker-compose.yml` → taruh di root project.
+- `docker-compose.yml` → taruh di root project. **(Sudah dilakukan — file aslinya sekarang ada di `docker-compose.yml` di root project. Jangan edit salinan di folder `redme/`, karena sudah dihapus supaya tidak ada dua versi yang bisa beda isi.)**
 - `backend.Dockerfile` → rename jadi `Dockerfile`, taruh di dalam folder `backend/`.
 - `frontend.Dockerfile` → rename jadi `Dockerfile`, taruh di dalam folder `frontend/`.
 - `.env.example` → salin jadi `.env` di root project, isi kredensial yang masih kosong.
