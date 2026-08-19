@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ProfileSettingsForm } from "@/components/dashboard/profile-settings-form";
 import { PasswordSettingsForm } from "@/components/dashboard/password-settings-form";
 import { BusinessSettingsForm } from "@/components/dashboard/business-settings-form";
+import { ChannelApiConfigCard } from "@/components/dashboard/channel-api-config-form";
 import { ThemeSettingsCard } from "@/components/dashboard/theme-settings-card";
 import { UserTable } from "@/components/dashboard/user-table";
-import { getBusinessSettings, getUsers } from "@/lib/api";
+import { getBusinessSettings, getChannelApiConfigs, getUsers } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { Role } from "@/lib/types";
 
@@ -17,9 +18,10 @@ export default async function PengaturanPage() {
   }
 
   const isAdmin = user.role === Role.ADMIN;
-  const [business, users] = await Promise.all([
+  const [business, users, channelApiConfigs] = await Promise.all([
     getBusinessSettings(),
     isAdmin ? getUsers() : Promise.resolve(null),
+    isAdmin ? getChannelApiConfigs() : Promise.resolve(null),
   ]);
 
   return (
@@ -55,6 +57,22 @@ export default async function PengaturanPage() {
           <BusinessSettingsForm key={business.updatedAt} business={business} editable={isAdmin} />
         </CardContent>
       </Card>
+
+      {isAdmin && channelApiConfigs && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Konfigurasi API E-commerce</CardTitle>
+            <CardDescription>
+              Client ID/secret aplikasi per marketplace, dipakai untuk memulai koneksi toko di
+              halaman Sinkronisasi. Field rahasia tidak pernah ditampilkan ulang - kosongkan
+              kalau tidak ingin diubah.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChannelApiConfigCard configs={channelApiConfigs} />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

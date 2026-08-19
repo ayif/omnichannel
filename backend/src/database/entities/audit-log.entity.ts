@@ -1,10 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum AuditAction {
   LOGIN_SUCCESS = 'login_success',
   LOGIN_FAILED = 'login_failed',
   CHANNEL_CONNECT = 'channel_connect',
   CHANNEL_DISCONNECT = 'channel_disconnect',
+  CHANNEL_API_CONFIG_UPDATE = 'channel_api_config_update',
   SYNC_TRIGGER = 'sync_trigger',
   USER_CREATE = 'user_create',
   USER_UPDATE = 'user_update',
@@ -37,7 +43,6 @@ export class AuditLog {
   @Column({ type: 'text' })
   description: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Column({ type: 'jsonb', nullable: true })
   metadata: any;
 

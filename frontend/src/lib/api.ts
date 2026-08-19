@@ -7,6 +7,7 @@ import {
   BusinessSettings,
   Channel,
   ChannelAccount,
+  ChannelApiConfigSummary,
   LabaRugiResponse,
   Product,
   ProdukTerlaris,
@@ -88,6 +89,10 @@ export function getChannelAccounts(): Promise<ChannelAccount[]> {
 
 export function getBusinessSettings(): Promise<BusinessSettings> {
   return apiFetch<BusinessSettings>("/settings/business");
+}
+
+export function getChannelApiConfigs(): Promise<ChannelApiConfigSummary[]> {
+  return apiFetch<ChannelApiConfigSummary[]>("/channel-api-configs");
 }
 
 export function getUsers(): Promise<AppUser[]> {

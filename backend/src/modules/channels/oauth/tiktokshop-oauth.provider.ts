@@ -1,7 +1,12 @@
 import { createHmac } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { ChannelOAuthProvider, OAuthTokenResult } from './oauth-provider.interface';
+import { Channel } from '../../../common/channel.enum';
+import { ChannelApiConfigService } from '../channel-api-config.service';
+import type {
+  ChannelOAuthProvider,
+  OAuthTokenResult,
+} from './oauth-provider.interface';
 
 interface TikTokShopTokenResponse {
   data?: {
@@ -33,64 +38,78 @@ interface TikTokShopTokenResponse {
  */
 @Injectable()
 export class TikTokShopOAuthProvider implements ChannelOAuthProvider {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly apiConfig: ChannelApiConfigService,
+  ) {}
 
-  private get appKey(): string {
-    return this.config.get<string>('TIKTOKSHOP_APP_KEY') ?? '';
-  }
-
-  private get appSecret(): string {
-    return this.config.get<string>('TIKTOKSHOP_APP_SECRET') ?? '';
-  }
-
-  private get authorizeUrl(): string {
-    return this.config.get<string>('TIKTOKSHOP_AUTHORIZE_URL') ?? 'https://services.tiktokshop.com/open/authorize';
-  }
-
-  private get baseUrl(): string {
-    return this.config.get<string>('TIKTOKSHOP_BASE_URL') ?? 'https://auth.tiktok-shops.com';
+  /** Kredensial diisi lewat halaman Pengaturan (DB) - .env cuma fallback lama. */
+  private async resolvedConfig() {
+    const db = await this.apiConfig.getDecrypted(Channel.TIKTOKSHOP);
+    return {
+      appKey: db.appKey || this.config.get<string>('TIKTOKSHOP_APP_KEY') || '',
+      appSecret:
+        db.appSecret || this.config.get<string>('TIKTOKSHOP_APP_SECRET') || '',
+      authorizeUrl:
+        db.authorizeUrl ||
+        this.config.get<string>('TIKTOKSHOP_AUTHORIZE_URL') ||
+        'https://services.tiktokshop.com/open/authorize',
+      baseUrl:
+        db.baseUrl ||
+        this.config.get<string>('TIKTOKSHOP_BASE_URL') ||
+        'https://auth.tiktok-shops.com',
+    };
   }
 
   private get redirectUri(): string {
-    const backendUrl = this.config.get<string>('BACKEND_PUBLIC_URL') ?? 'http://localhost:3000';
+    const backendUrl =
+      this.config.get<string>('BACKEND_PUBLIC_URL') ?? 'http://localhost:3000';
     return `${backendUrl}/channel-accounts/tiktokshop/callback`;
   }
 
-  private sign(path: string, params: Record<string, string>): string {
+  private sign(
+    appSecret: string,
+    path: string,
+    params: Record<string, string>,
+  ): string {
     const sortedEntries = Object.keys(params)
       .sort()
       .map((key) => `${key}${params[key]}`)
       .join('');
-    const baseString = `${this.appSecret}${path}${sortedEntries}${this.appSecret}`;
-    return createHmac('sha256', this.appSecret).update(baseString).digest('hex');
+    const baseString = `${appSecret}${path}${sortedEntries}${appSecret}`;
+    return createHmac('sha256', appSecret).update(baseString).digest('hex');
   }
 
-  getAuthorizationUrl(state: string): string {
+  async getAuthorizationUrl(state: string): Promise<string> {
+    const { appKey, authorizeUrl } = await this.resolvedConfig();
     const params = new URLSearchParams({
-      app_key: this.appKey,
+      app_key: appKey,
       redirect_uri: this.redirectUri,
       state,
     });
-    return `${this.authorizeUrl}?${params.toString()}`;
+    return `${authorizeUrl}?${params.toString()}`;
   }
 
   async exchangeCode({ code }: { code: string }): Promise<OAuthTokenResult> {
+    const { appKey, appSecret, baseUrl } = await this.resolvedConfig();
     const path = '/api/v2/token/get';
     const timestamp = String(Math.floor(Date.now() / 1000));
-    const signParams = { app_key: this.appKey, timestamp, auth_code: code };
+    const signParams = { app_key: appKey, timestamp, auth_code: code };
     const params = new URLSearchParams({
       ...signParams,
       grant_type: 'authorized_code',
-      sign: this.sign(path, signParams),
+      sign: this.sign(appSecret, path, signParams),
     });
 
-    const res = await fetch(`${this.baseUrl}${path}?${params.toString()}`, {
+    const res = await fetch(`${baseUrl}${path}?${params.toString()}`, {
       method: 'GET',
     });
 
     const data = (await res.json()) as TikTokShopTokenResponse;
     if (!res.ok || (data.code && data.code !== 0) || !data.data) {
-      throw new Error(`TikTok Shop token exchange gagal: ${data.message ?? res.status}`);
+      throw new Error(
+        `TikTok Shop token exchange gagal: ${data.message ?? res.status}`,
+      );
     }
 
     const shopId = String(data.shop_id ?? '');

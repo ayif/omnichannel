@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { ChannelOAuthProvider, OAuthTokenResult } from './oauth-provider.interface';
+import { Channel } from '../../../common/channel.enum';
+import { ChannelApiConfigService } from '../channel-api-config.service';
+import type {
+  ChannelOAuthProvider,
+  OAuthTokenResult,
+} from './oauth-provider.interface';
 
 interface TokopediaTokenResponse {
   access_token: string;
@@ -27,45 +32,56 @@ interface TokopediaTokenResponse {
  */
 @Injectable()
 export class TokopediaOAuthProvider implements ChannelOAuthProvider {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly apiConfig: ChannelApiConfigService,
+  ) {}
 
-  private get clientId(): string {
-    return this.config.get<string>('TOKOPEDIA_CLIENT_ID') ?? '';
-  }
-
-  private get clientSecret(): string {
-    return this.config.get<string>('TOKOPEDIA_CLIENT_SECRET') ?? '';
-  }
-
-  private get authorizeUrl(): string {
-    return this.config.get<string>('TOKOPEDIA_AUTHORIZE_URL') ?? 'https://accounts.tokopedia.com/oauth/authorize';
-  }
-
-  private get tokenUrl(): string {
-    return this.config.get<string>('TOKOPEDIA_TOKEN_URL') ?? 'https://fs.tokopedia.net/token';
+  /** Kredensial diisi lewat halaman Pengaturan (DB) - .env cuma fallback lama. */
+  private async resolvedConfig() {
+    const db = await this.apiConfig.getDecrypted(Channel.TOKOPEDIA);
+    return {
+      clientId:
+        db.clientId || this.config.get<string>('TOKOPEDIA_CLIENT_ID') || '',
+      clientSecret:
+        db.clientSecret ||
+        this.config.get<string>('TOKOPEDIA_CLIENT_SECRET') ||
+        '',
+      authorizeUrl:
+        db.authorizeUrl ||
+        this.config.get<string>('TOKOPEDIA_AUTHORIZE_URL') ||
+        'https://accounts.tokopedia.com/oauth/authorize',
+      tokenUrl:
+        db.tokenUrl ||
+        this.config.get<string>('TOKOPEDIA_TOKEN_URL') ||
+        'https://fs.tokopedia.net/token',
+    };
   }
 
   private get redirectUri(): string {
-    const backendUrl = this.config.get<string>('BACKEND_PUBLIC_URL') ?? 'http://localhost:3000';
+    const backendUrl =
+      this.config.get<string>('BACKEND_PUBLIC_URL') ?? 'http://localhost:3000';
     return `${backendUrl}/channel-accounts/tokopedia/callback`;
   }
 
-  getAuthorizationUrl(state: string): string {
+  async getAuthorizationUrl(state: string): Promise<string> {
+    const { clientId, authorizeUrl } = await this.resolvedConfig();
     const params = new URLSearchParams({
-      client_id: this.clientId,
+      client_id: clientId,
       redirect_uri: this.redirectUri,
       response_type: 'code',
       state,
     });
-    return `${this.authorizeUrl}?${params.toString()}`;
+    return `${authorizeUrl}?${params.toString()}`;
   }
 
   async exchangeCode({ code }: { code: string }): Promise<OAuthTokenResult> {
-    const res = await fetch(this.tokenUrl, {
+    const { clientId, clientSecret, tokenUrl } = await this.resolvedConfig();
+    const res = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
@@ -76,7 +92,9 @@ export class TokopediaOAuthProvider implements ChannelOAuthProvider {
 
     const data = (await res.json()) as TokopediaTokenResponse;
     if (!res.ok || data.error) {
-      throw new Error(`Tokopedia token exchange gagal: ${data.error_description ?? data.error ?? res.status}`);
+      throw new Error(
+        `Tokopedia token exchange gagal: ${data.error_description ?? data.error ?? res.status}`,
+      );
     }
 
     const shopId = String(data.shop_id ?? data.fs_id ?? '');
@@ -85,7 +103,9 @@ export class TokopediaOAuthProvider implements ChannelOAuthProvider {
       namaToko: data.shop_name ?? `Toko Tokopedia ${shopId}`,
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
-      expiresAt: data.expires_in ? new Date(Date.now() + data.expires_in * 1000) : undefined,
+      expiresAt: data.expires_in
+        ? new Date(Date.now() + data.expires_in * 1000)
+        : undefined,
     };
   }
 }

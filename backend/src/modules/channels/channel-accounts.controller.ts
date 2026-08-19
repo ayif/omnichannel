@@ -33,8 +33,12 @@ export class ChannelAccountsController {
   }
 
   @Get(':channel/connect')
-  connect(@Param('channel', new ParseEnumPipe(Channel)) channel: Channel) {
-    return { url: this.channelAccountsService.getAuthorizationUrl(channel) };
+  async connect(
+    @Param('channel', new ParseEnumPipe(Channel)) channel: Channel,
+  ) {
+    return {
+      url: await this.channelAccountsService.getAuthorizationUrl(channel),
+    };
   }
 
   /**
@@ -50,9 +54,14 @@ export class ChannelAccountsController {
     @Query('shop_id') shopId: string | undefined,
     @Res() res: Response,
   ) {
-    const frontendUrl = process.env.FRONTEND_PUBLIC_URL ?? 'http://localhost:3001';
+    const frontendUrl =
+      process.env.FRONTEND_PUBLIC_URL ?? 'http://localhost:3001';
     try {
-      const account = await this.channelAccountsService.handleCallback(channel, code, shopId);
+      const account = await this.channelAccountsService.handleCallback(
+        channel,
+        code,
+        shopId,
+      );
       await this.auditLogService.record({
         action: AuditAction.CHANNEL_CONNECT,
         user: null,
@@ -63,13 +72,19 @@ export class ChannelAccountsController {
       });
       res.redirect(`${frontendUrl}/sinkronisasi?connected=${account.channel}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Gagal menghubungkan toko';
-      res.redirect(`${frontendUrl}/sinkronisasi?error=${encodeURIComponent(message)}`);
+      const message =
+        error instanceof Error ? error.message : 'Gagal menghubungkan toko';
+      res.redirect(
+        `${frontendUrl}/sinkronisasi?error=${encodeURIComponent(message)}`,
+      );
     }
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
     const account = await this.channelAccountsService.findOne(id);
     if (!account) {
       throw new NotFoundException(`Channel account ${id} tidak ditemukan`);

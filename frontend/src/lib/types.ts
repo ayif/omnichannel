@@ -224,6 +224,22 @@ export interface BusinessSettings {
   updatedAt: string;
 }
 
+export interface ChannelApiFieldStatus {
+  key: string;
+  label: string;
+  secret: boolean;
+  required: boolean;
+  placeholder?: string;
+  value: string | null;
+  isSet: boolean;
+}
+
+export interface ChannelApiConfigSummary {
+  channel: Channel;
+  fields: ChannelApiFieldStatus[];
+  updatedAt: string | null;
+}
+
 export interface AppUser {
   id: string;
   email: string;

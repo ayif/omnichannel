@@ -9,3 +9,4 @@ export * from './stock-movement.entity';
 export * from './sync-log.entity';
 export * from './user.entity';
 export * from './channel-account.entity';
+export * from './channel-api-config.entity';

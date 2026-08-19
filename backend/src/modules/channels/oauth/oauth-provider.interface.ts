@@ -7,6 +7,9 @@ export interface OAuthTokenResult {
 }
 
 export interface ChannelOAuthProvider {
-  getAuthorizationUrl(state: string): string;
-  exchangeCode(params: { code: string; shopId?: string }): Promise<OAuthTokenResult>;
+  getAuthorizationUrl(state: string): Promise<string>;
+  exchangeCode(params: {
+    code: string;
+    shopId?: string;
+  }): Promise<OAuthTokenResult>;
 }

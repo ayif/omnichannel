@@ -42,19 +42,28 @@ export class ChannelAccountsService {
       case Channel.TIKTOKSHOP:
         return this.tiktokShopOAuth;
       default:
-        throw new BadRequestException(`Channel "${channel}" tidak mendukung koneksi OAuth`);
+        throw new BadRequestException(
+          `Channel "${channel}" tidak mendukung koneksi OAuth`,
+        );
     }
   }
 
-  getAuthorizationUrl(channel: Channel): string {
+  getAuthorizationUrl(channel: Channel): Promise<string> {
     // State sederhana (anti-CSRF minimal) - untuk produksi idealnya disimpan
     // sebentar (cache/redis) dan diverifikasi persis saat callback.
     const state = randomBytes(16).toString('hex');
     return this.providerFor(channel).getAuthorizationUrl(state);
   }
 
-  async handleCallback(channel: Channel, code: string, shopId?: string): Promise<ChannelAccount> {
-    const result = await this.providerFor(channel).exchangeCode({ code, shopId });
+  async handleCallback(
+    channel: Channel,
+    code: string,
+    shopId?: string,
+  ): Promise<ChannelAccount> {
+    const result = await this.providerFor(channel).exchangeCode({
+      code,
+      shopId,
+    });
 
     let account = await this.accountRepo.findOne({
       where: { channel, shopId: result.shopId },
@@ -65,7 +74,9 @@ export class ChannelAccountsService {
 
     account.namaToko = result.namaToko;
     account.accessTokenEnc = encryptSecret(result.accessToken);
-    account.refreshTokenEnc = result.refreshToken ? encryptSecret(result.refreshToken) : null;
+    account.refreshTokenEnc = result.refreshToken
+      ? encryptSecret(result.refreshToken)
+      : null;
     account.expiresAt = result.expiresAt ?? null;
     account.status = ChannelAccountStatus.CONNECTED;
 
@@ -73,13 +84,18 @@ export class ChannelAccountsService {
   }
 
   async findAll(): Promise<ChannelAccountDto[]> {
-    const accounts = await this.accountRepo.find({ order: { createdAt: 'DESC' } });
+    const accounts = await this.accountRepo.find({
+      order: { createdAt: 'DESC' },
+    });
     return accounts.map((a) => ({
       id: a.id,
       channel: a.channel,
       shopId: a.shopId,
       namaToko: a.namaToko,
-      status: a.expiresAt && a.expiresAt < new Date() ? ChannelAccountStatus.EXPIRED : a.status,
+      status:
+        a.expiresAt && a.expiresAt < new Date()
+          ? ChannelAccountStatus.EXPIRED
+          : a.status,
       expiresAt: a.expiresAt?.toISOString() ?? null,
       createdAt: a.createdAt.toISOString(),
     }));
