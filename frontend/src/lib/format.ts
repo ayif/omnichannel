@@ -19,16 +19,29 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
+/**
+ * timeZone dikunci ke WIB - server (container, biasanya UTC) dan browser
+ * pengguna bisa punya zona waktu lokal berbeda, dan Intl.DateTimeFormat
+ * tanpa timeZone eksplisit memformat berdasarkan zona waktu runtime. Kalau
+ * dibiarkan, Client Component yang di-SSR bisa hasilkan teks beda antara
+ * render server vs client lalu memicu hydration mismatch di React.
+ */
+const TIME_ZONE = "Asia/Jakarta";
+
 export function formatChartDay(isoDate: string): string {
-  return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short" }).format(
-    new Date(`${isoDate}T00:00:00Z`)
-  );
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    timeZone: TIME_ZONE,
+  }).format(new Date(`${isoDate}T00:00:00Z`));
 }
 
 export function formatMonth(yyyyMm: string): string {
-  return new Intl.DateTimeFormat("id-ID", { month: "short", year: "numeric" }).format(
-    new Date(`${yyyyMm}-01T00:00:00Z`)
-  );
+  return new Intl.DateTimeFormat("id-ID", {
+    month: "short",
+    year: "numeric",
+    timeZone: TIME_ZONE,
+  }).format(new Date(`${yyyyMm}-01T00:00:00Z`));
 }
 
 export function formatDate(value: string | Date): string {
@@ -36,6 +49,7 @@ export function formatDate(value: string | Date): string {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: TIME_ZONE,
   }).format(new Date(value));
 }
 
@@ -45,6 +59,7 @@ export function formatDateTime(value: string | Date): string {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: TIME_ZONE,
   }).format(new Date(value));
 }
 

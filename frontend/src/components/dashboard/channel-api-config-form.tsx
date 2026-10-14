@@ -16,15 +16,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { ChannelLogo } from "@/components/dashboard/channel-logo";
+import { formatDateTime } from "@/lib/format";
 import { CHANNEL_LABEL, type ChannelApiConfigSummary } from "@/lib/types";
-
-function formatUpdatedAt(value: string | null) {
-  if (!value) return null;
-  return new Date(value).toLocaleString("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function ChannelApiConfigTab({ config }: { config: ChannelApiConfigSummary }) {
   const router = useRouter();
@@ -59,7 +52,7 @@ function ChannelApiConfigTab({ config }: { config: ChannelApiConfigSummary }) {
     }
   }
 
-  const updatedAtLabel = formatUpdatedAt(config.updatedAt);
+  const updatedAtLabel = config.updatedAt ? formatDateTime(config.updatedAt) : null;
 
   return (
     <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-4">

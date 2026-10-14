@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -83,7 +84,9 @@ export function NotificationBell() {
       />
       <DropdownMenuContent align="end" side="bottom" className="w-80 max-w-[90vw] sm:w-96">
         <div className="flex items-center justify-between px-1.5 py-1">
-          <DropdownMenuLabel className="p-0">Notifikasi</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="p-0">Notifikasi</DropdownMenuLabel>
+          </DropdownMenuGroup>
           {unreadCount > 0 && (
             <button
               type="button"
