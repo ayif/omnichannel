@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { buildTypeOrmOptions } from './database/typeorm.config';
 import { AccountingModule } from './modules/accounting/accounting.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { AiAssistantModule } from './modules/ai-assistant/ai-assistant.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChannelsModule } from './modules/channels/channels.module';
@@ -46,6 +47,7 @@ import { UsersModule } from './modules/users/users.module';
     AuditLogModule,
     NotificationsModule,
     AnalyticsModule,
+    AiAssistantModule,
     UsersModule,
     SettingsModule,
   ],

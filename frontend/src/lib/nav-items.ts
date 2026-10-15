@@ -1,5 +1,6 @@
 import {
   Calculator,
+  Bot,
   History,
   LayoutDashboard,
   Package,
@@ -24,6 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Transaksi", url: "/transaksi", icon: Receipt, roles: [Role.ADMIN, Role.STAFF] },
   { title: "Akuntansi", url: "/akuntansi", icon: Calculator, roles: [Role.ADMIN, Role.STAFF] },
   { title: "Analisis Produk", url: "/analisis-produk", icon: Sparkles, roles: [Role.ADMIN, Role.STAFF] },
+  { title: "Asisten AI", url: "/asisten", icon: Bot, roles: [Role.ADMIN, Role.STAFF] },
   { title: "Sinkronisasi", url: "/sinkronisasi", icon: RefreshCw, roles: [Role.ADMIN, Role.STAFF] },
   { title: "Log Aktivitas", url: "/log-aktivitas", icon: History, roles: [Role.ADMIN] },
 ];
