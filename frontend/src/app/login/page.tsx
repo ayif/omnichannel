@@ -31,15 +31,15 @@ export default async function LoginPage() {
 
   return (
     <div className="grid min-h-svh flex-1 lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 text-primary-foreground lg:flex">
-        <div className="pointer-events-none absolute -right-16 -bottom-16 aspect-square w-[62%]">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-primary via-indigo-700 to-slate-950 p-10 text-white lg:flex xl:p-14">
+        <div className="pointer-events-none absolute -right-16 -bottom-16 aspect-square w-[62%] opacity-60">
           <Image
             src="/6934766.jpg"
             alt=""
             fill
             priority
             sizes="40vw"
-            className="object-contain mix-blend-multiply"
+            className="object-contain mix-blend-screen"
             style={{
               maskImage:
                 "linear-gradient(135deg, transparent 0%, black 30%)",
@@ -57,32 +57,35 @@ export default async function LoginPage() {
           }}
         />
         <div className="relative flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary-foreground/15">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/15">
             <Store className="size-4" />
           </div>
-          <span className="font-heading font-semibold">Rekap Omni</span>
+          <span className="font-heading font-semibold tracking-tight">Rekap Omni</span>
         </div>
 
-        <div className="relative flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="font-heading text-3xl leading-tight font-semibold text-balance">
+        <div className="relative flex max-w-xl flex-col gap-9">
+          <div className="flex flex-col gap-4">
+            <span className="w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] uppercase backdrop-blur">
+              Satu sistem, semua channel
+            </span>
+            <h1 className="font-heading text-4xl leading-tight font-semibold tracking-tight text-balance xl:text-5xl">
               Satu dashboard untuk semua channel penjualan.
             </h1>
-            <p className="max-w-md text-sm text-primary-foreground/80">
+            <p className="max-w-md text-sm leading-6 text-white/75">
               Rekap omzet, stok, dan status sinkronisasi Tokopedia, Shopee, Website, dan
               TikTok Shop tanpa buka-tutup aplikasi satu-satu.
             </p>
           </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {FEATURES.map((f) => (
               <div key={f.title} className="flex items-start gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/15">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/10">
                   <f.icon className="size-4" />
                 </div>
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-1">
                   <span className="text-sm font-medium">{f.title}</span>
-                  <span className="text-xs text-primary-foreground/70">{f.description}</span>
+                  <span className="text-xs leading-5 text-white/65">{f.description}</span>
                 </div>
               </div>
             ))}
@@ -94,7 +97,7 @@ export default async function LoginPage() {
         </p>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-muted/20 p-4">
+      <div className="flex flex-1 items-center justify-center bg-[radial-gradient(ellipse_at_top,oklch(0.94_0.035_263_/_0.55),transparent_50%),var(--background)] p-4 sm:p-8">
         <LoginForm />
       </div>
     </div>

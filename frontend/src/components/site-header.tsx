@@ -25,12 +25,17 @@ export function SiteHeader({ user }: { user: SessionUser }) {
   const title = PAGE_TITLE[pathname] ?? "Dashboard";
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
-      <h1 className="font-heading text-sm font-semibold">{title}</h1>
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-3 border-b border-border/70 bg-background/85 px-4 backdrop-blur-xl md:px-6">
+      <SidebarTrigger className="-ml-1 rounded-xl" />
+      <Separator orientation="vertical" className="h-6" />
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+          Workspace
+        </span>
+        <h1 className="font-heading text-sm font-semibold tracking-tight">{title}</h1>
+      </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-1 sm:gap-2">
         <CommandPalette user={user} />
         <NotificationBell />
         <ThemeToggle />

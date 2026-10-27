@@ -47,21 +47,28 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <div className="mb-2 flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <Card className="w-full max-w-md rounded-3xl border-border/70 bg-card/95 shadow-xl shadow-slate-950/[0.07] backdrop-blur">
+      <CardHeader className="gap-3 px-7 pt-8 sm:px-9 sm:pt-10">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-primary-foreground shadow-md shadow-primary/20">
             <Store className="size-4" />
           </div>
-          <span className="font-heading font-semibold">Rekap Omni</span>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-heading font-semibold tracking-tight">Rekap Omni</span>
+            <span className="text-[10px] font-medium tracking-[0.12em] text-muted-foreground uppercase">
+              Business workspace
+            </span>
+          </div>
         </div>
-        <CardTitle>Masuk ke dashboard</CardTitle>
-        <CardDescription>Rekap penjualan & stok multi-channel</CardDescription>
+        <CardTitle className="font-heading text-2xl tracking-tight">Selamat datang kembali</CardTitle>
+        <CardDescription className="text-sm leading-6">
+          Masuk untuk melihat ringkasan penjualan dan operasional toko Anda.
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <CardContent className="px-7 pb-8 sm:px-9 sm:pb-10">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-xs font-semibold">Email</Label>
             <Input
               id="email"
               name="email"
@@ -69,17 +76,27 @@ export function LoginForm() {
               placeholder="admin@rekap.local"
               required
               autoFocus
+              className="h-11 rounded-xl bg-background/80 px-3.5"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="h-11 rounded-xl bg-background/80 px-3.5"
+            />
           </div>
           {error && <p className="text-sm text-status-critical">{error}</p>}
-          <Button type="submit" disabled={pending} className="mt-1 w-full">
+          <Button type="submit" disabled={pending} className="mt-1 h-11 w-full rounded-xl">
             {pending && <Loader2 className="animate-spin" />}
             Masuk
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Akses aman untuk tim operasional Anda
+          </p>
         </form>
       </CardContent>
     </Card>

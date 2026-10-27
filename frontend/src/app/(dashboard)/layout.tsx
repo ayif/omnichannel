@@ -19,7 +19,7 @@ export default async function DashboardLayout({
       <AppSidebar user={user} />
       <SidebarInset>
         <SiteHeader user={user} />
-        <div className="flex flex-1 flex-col gap-4 bg-muted/20 p-4 md:p-6">
+        <div className="relative flex flex-1 flex-col gap-4 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,oklch(0.94_0.035_263_/_0.48),transparent_38%),var(--background)] p-4 md:p-7 xl:p-8">
           {children}
         </div>
       </SidebarInset>

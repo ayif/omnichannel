@@ -56,22 +56,22 @@ export function AppSidebar({ user }: { user: SessionUser }) {
   }
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border shadow-xl shadow-slate-950/10">
+      <SidebarHeader className="px-3 pb-3 pt-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               render={<Link href="/" />}
-              className="data-active:bg-transparent"
+              className="rounded-xl data-active:bg-transparent hover:bg-sidebar-accent/70"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-md shadow-blue-950/20">
                 <Store className="size-4" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-heading font-semibold">Rekap Omni</span>
-                <span className="text-xs text-muted-foreground">
-                  Multi-channel
+                <span className="font-heading font-semibold tracking-tight">Rekap Omni</span>
+                <span className="text-xs text-sidebar-foreground/60">
+                  BUSINESS CONTROL
                 </span>
               </div>
             </SidebarMenuButton>
@@ -80,7 +80,9 @@ export function AppSidebar({ user }: { user: SessionUser }) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-3 text-[10px] font-semibold tracking-[0.16em] text-sidebar-foreground/45 uppercase">
+            Workspace
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -89,6 +91,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                     render={<Link href={item.url} />}
                     isActive={pathname === item.url}
                     tooltip={item.title}
+                    className="my-0.5 rounded-xl px-3 py-5 text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-foreground data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground data-active:shadow-md data-active:shadow-black/10"
                   >
                     <item.icon />
                     <span>{item.title}</span>
@@ -99,21 +102,21 @@ export function AppSidebar({ user }: { user: SessionUser }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border px-2 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <SidebarMenuButton size="lg">
+                  <SidebarMenuButton size="lg" className="rounded-xl hover:bg-sidebar-accent">
                     <Avatar size="sm" className="rounded-lg">
-                      <AvatarFallback className="rounded-lg">
+                      <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                         {initials(user.nama)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-0.5 leading-none">
                       <span className="font-medium">{user.nama}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-sidebar-foreground/55">
                         {user.email}
                       </span>
                     </div>
