@@ -17,6 +17,34 @@ services:
       timeout: 5s
       retries: 5
 
+  n8n-db-init:
+    image: postgres:16-alpine
+    container_name: rekap_n8n_db_init
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${DB_USER:-rekap_user}
+      PGPASSWORD: ${DB_PASSWORD:-rekap_pass}
+      N8N_DB_NAME: ${N8N_DB_NAME:-n8n}
+      N8N_DB_USER: ${N8N_DB_USER:-n8n}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD:?Tambahkan N8N_DB_PASSWORD ke file .env}
+    volumes:
+      - ./docker/n8n-init.sql:/docker-entrypoint-initdb.d/n8n-init.sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        until pg_isready -h "$$PGHOST" -p "$$PGPORT" -U "$$PGUSER"; do sleep 2; done
+        psql -v ON_ERROR_STOP=1 -d postgres \
+          -v n8n_db_name="$$N8N_DB_NAME" \
+          -v n8n_db_user="$$N8N_DB_USER" \
+          -v n8n_db_password="$$N8N_DB_PASSWORD" \
+          -f /docker-entrypoint-initdb.d/n8n-init.sql
+
   redis:
     image: redis:7-alpine
     container_name: rekap_redis
@@ -104,6 +132,39 @@ services:
     depends_on:
       - postgres
 
+  n8n:
+    image: n8nio/n8n:2.44.7
+    container_name: rekap_n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${N8N_PORT:-5678}:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?Tambahkan N8N_DB_PASSWORD ke file .env}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?Tambahkan N8N_ENCRYPTION_KEY ke file .env}
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_EDITOR_BASE_URL: http://localhost:${N8N_PORT:-5678}/
+      N8N_WEBHOOK_URL: http://localhost:${N8N_PORT:-5678}/
+      N8N_SECURE_COOKIE: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_UNVERIFIED_PACKAGES_ENABLED: "false"
+      GENERIC_TIMEZONE: Asia/Jakarta
+      TZ: Asia/Jakarta
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+      n8n-db-init:
+        condition: service_completed_successfully
+
 volumes:
   postgres_data:
   redis_data:
+  n8n_data:

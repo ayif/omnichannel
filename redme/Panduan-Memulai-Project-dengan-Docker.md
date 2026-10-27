@@ -1,98 +1,59 @@
 # Panduan Memulai Project dengan Docker
 
-Stack: Node.js/TypeScript (backend) + Next.js (frontend) + PostgreSQL + Redis, dikemas dengan Docker Compose.
+Stack: Node.js/TypeScript (backend) + Next.js (frontend) + PostgreSQL + Redis + n8n, dikemas dengan Docker Compose untuk development lokal.
 
-## 1. Struktur Folder
+## 1. Clone Repository
 
+Clone repository, lalu jalankan perintah dari folder project:
+
+```powershell
+git clone https://github.com/ayif/omnichannel.git
+Set-Location omnichannel
 ```
-rekap-marketplace/
-├── docker-compose.yml
-├── .env
-├── backend/
-│   ├── Dockerfile
-│   ├── package.json
-│   └── src/
-└── frontend/
-    ├── Dockerfile
-    ├── package.json
-    └── ...
-```
-
-File yang sudah dibuat di outputs (pindahkan sesuai nama & lokasi berikut):
-
-- `docker-compose.yml` → taruh di root project. **(Sudah dilakukan — file aslinya sekarang ada di `docker-compose.yml` di root project. Jangan edit salinan di folder `redme/`, karena sudah dihapus supaya tidak ada dua versi yang bisa beda isi.)**
-- `backend.Dockerfile` → rename jadi `Dockerfile`, taruh di dalam folder `backend/`.
-- `frontend.Dockerfile` → rename jadi `Dockerfile`, taruh di dalam folder `frontend/`.
-- `.env.example` → salin jadi `.env` di root project, isi kredensial yang masih kosong.
 
 ## 2. Prasyarat
 
 - Docker Desktop / Docker Engine + Docker Compose sudah terinstall.
 - Belum perlu install Node.js di komputer lokal — semua jalan di dalam container.
 
-## 3. Inisialisasi Project
+## 3. Konfigurasi lokal dan menjalankan aplikasi
 
-```bash
-mkdir rekap-marketplace && cd rekap-marketplace
-mkdir backend frontend
+Buat file environment lokal yang dibutuhkan. Perintah ini tidak menimpa file jika sudah ada:
 
-# copy docker-compose.yml, .env.example ke root
-# copy backend.Dockerfile -> backend/Dockerfile
-# copy frontend.Dockerfile -> frontend/Dockerfile
-
-cp .env.example .env
-```
-
-Inisialisasi backend (di dalam folder `backend/`), contoh pakai NestJS:
-
-```bash
-cd backend
-npm init -y
-npx @nestjs/cli new . --skip-install
-npm install pg ioredis bullmq typeorm @nestjs/typeorm dotenv
-cd ..
-```
-
-Inisialisasi frontend (di dalam folder `frontend/`):
-
-```bash
-npx create-next-app@latest frontend --typescript
-```
-
-Pastikan `package.json` backend punya script berikut (dipakai oleh `docker-compose.yml`):
-
-```json
-{
-  "scripts": {
-    "dev": "ts-node-dev --respawn src/main.ts",
-    "worker": "ts-node-dev --respawn src/worker.ts",
-    "build": "tsc -p tsconfig.json"
-  }
+```powershell
+if (-not (Test-Path .env)) {
+  Copy-Item redme\.env.example .env
+}
+if (-not (Test-Path backend\.env)) {
+  Copy-Item backend\.env.example backend\.env
 }
 ```
 
+File `.env` root dipakai Docker Compose, sedangkan `backend/.env` dipakai backend dan worker. Samakan `DB_USER`, `DB_PASSWORD`, dan `DB_NAME` di kedua file. Ganti placeholder secret di file environment lokal; jangan commit atau membagikan file tersebut.
+
 ## 4. Menjalankan Semua Service
 
-Dari root project:
+Jalankan dari root project:
 
-```bash
-docker compose up --build
+```powershell
+docker compose up -d --build
+docker compose ps -a
 ```
 
-Perintah ini akan menyalakan lima container:
+Compose menyalakan service berikut:
 
-- `rekap_postgres` — database, port 5432
+- `rekap_postgres` — database aplikasi dan database n8n, port 5432
 - `rekap_redis` — queue/cache, port 6379
 - `rekap_backend` — API server, port 3000
-- `rekap_worker` — proses background untuk sync Tokopedia/Shopee & update stok
+- `rekap_worker` — proses background untuk sync order dan update stok
 - `rekap_frontend` — dashboard, port 3001
-- `rekap_adminer` — GUI untuk lihat isi database, port 8080
+- `rekap_adminer` — GUI database, port 8080
+- `rekap_n8n` — automation editor, lokal di `http://localhost:5678`
+- `rekap_n8n_db_init` — menyiapkan database/user n8n, lalu selesai dengan exit code 0
 
-Cek semua service jalan:
+Untuk n8n, ikuti langkah secret dan catatan volume di [Panduan n8n Docker](./Panduan-N8N-Docker.md).
 
-```bash
-docker compose ps
-```
+Alamat aplikasi: frontend `http://localhost:3001`, Adminer `http://localhost:8080`, dan n8n `http://localhost:5678`.
 
 ## 5. Menjalankan Migrasi Database
 
@@ -125,7 +86,7 @@ docker compose restart backend
 
 ```bash
 docker compose down          # stop semua container, data volume tetap ada
-docker compose down -v       # stop + hapus volume (reset database & redis total)
+docker compose down -v       # HAPUS database, Redis, dan data n8n secara permanen
 ```
 
 ## 9. Menuju Production
@@ -137,3 +98,7 @@ Untuk deploy, ubah target build di `docker-compose.yml` (atau buat `docker-compo
 - [ ] Daftar developer account di Tokopedia Developer Portal & Shopee Open Platform, isi `TOKOPEDIA_*` dan `SHOPEE_*` di `.env`.
 - [ ] Buat modul/service terpisah per channel (`TokopediaService`, `ShopeeService`) di backend supaya integrasi tiap platform terisolasi.
 - [ ] Setup queue (BullMQ) di `worker` untuk job sync order & update stok, sesuai desain di dokumen arsitektur sebelumnya.
+
+## 11. Menjalankan n8n untuk Development
+
+Untuk menyiapkan n8n di perangkat baru, membuat konfigurasi lokal yang dibutuhkan, dan membuka editor di `http://localhost:5678`, ikuti [Panduan n8n Docker](./Panduan-N8N-Docker.md). Jangan commit file `.env` atau `backend/.env`; keduanya berisi konfigurasi lokal dan secret.
